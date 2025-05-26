@@ -1,11 +1,11 @@
 module.exports = {
   type: 'object',
   properties: {
-    photoId:      { type: 'integer' },
-    shoulderTilt: { type: 'number' },
-    hipTilt:      { type: 'number' },
-    spineTilt:    { type: 'number' }
+    photo_id:      { type: 'integer' },
+    shoulder_tilt: { type: 'number' },
+    hip_tilt:      { type: 'number' },
+    spine_tilt:    { type: 'number' }
   },
-  required: ['photoId','shoulderTilt','hipTilt','spineTilt'],
+  required: ['photo_id','shoulder_tilt','hip_tilt','spine_tilt'],
   additionalProperties: false
 };

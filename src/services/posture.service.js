@@ -4,45 +4,37 @@ const photoRepo = require('../repositories/photo.repository');
 const ai = require('../ai/posture-ai');
 
 module.exports = {
-  async analyzeAndSave(photoId, fileBuffer) {
-    console.log('[SERVICE] [step1] buffer length =', fileBuffer ? fileBuffer.length : 'undefined');
+  async analyzeAndSave(photo_id, fileBuffer) {
+    console.log('[SERVICE] Analyzing and saving posture for photo_id:', photo_id);
 
-    // Apelează AI-ul și log raw output
-    const { angles: rawAngles, message } = await ai.analyzePosture(fileBuffer);
-    console.log('[SERVICE] [step2] rawAngles =', rawAngles, 'message =', message);
+    const { angles, message } = await ai.analyzePosture(fileBuffer);
+    console.log('[SERVICE] Angles calculated:', angles);
 
-    // Convertim la numere și log după conversie
-    const angles = rawAngles
-      ? {
-          shoulderTilt: Number(rawAngles.shoulderTilt),
-          hipTilt: Number(rawAngles.hipTilt),
-          spineTilt: Number(rawAngles.spineTilt),
-        }
-      : null;
-    console.log('[SERVICE] [step3] converted angles =', angles);
-
-    // Validare finală
     if (!angles || Object.values(angles).some(a => isNaN(a))) {
-      console.log('[SERVICE] [step4] angles invalid, returning null');
+      console.log('[SERVICE] Invalid angles, returning null');
       return { angles: null, message: message || 'No pose detected' };
     }
 
-    // Mapping pentru baza de date
-    const mappedAngles = {
-      shoulder_tilt: Number(angles.shoulderTilt),
-      hip_tilt: Number(angles.hipTilt),
-      spine_tilt: Number(angles.spineTilt),
+    const postureData = {
+      photo_id,
+      shoulder_tilt: angles.shoulderTilt ?? 0,
+      hip_tilt: angles.hipTilt ?? 0,
+      spine_tilt: angles.spineTilt ?? 0,
+      overlay_uri: null // Inițial null, va fi actualizat ulterior
     };
-    console.log('[SERVICE] [step4] mappedAngles =', mappedAngles);
 
-    // Salvează în baza de date
-    const posture = await repo.create({ photoId, ...mappedAngles });
-    console.log('[SERVICE] [step5] posture saved:', posture);
+    console.log('[SERVICE] Data to save:', postureData);
+
+    const posture = await repo.create(postureData);
+    console.log('[SERVICE] Posture saved:', posture);
 
     return { posture, angles };
   },
 
-  async getHistory(photoId) {
-    return await repo.findByPhoto(photoId);
+  async getHistory(photo_id) {
+    console.log('[SERVICE] Fetching history for photo_id:', photo_id);
+    const history = await repo.findByPhoto(photo_id);
+    console.log('[SERVICE] History fetched from repo:', history);
+    return history;
   }
 };

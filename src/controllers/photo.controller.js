@@ -34,22 +34,32 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '..', 'uploads');
+    cb(null, uploadDir);
+  },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const name = `student${req.body.studentId}${Date.now()}${ext}`;
-    cb(null, name);
+    const studentId = Number(req.body.student_id) || 'unknown';
+    cb(null, `student${studentId}_${Date.now()}${ext}`);
   }
 });
 const upload = multer({ storage });
 
 router.post('/upload', upload.single('photo'), async (req, res, next) => {
   try {
-    console.log('req.body:', req.body); // Log pentru debugging
+    console.log('req.body:', req.body);
 
-    const studentId = Number(req.body.studentId); // Convertim la număr
-    if (!req.file || isNaN(studentId)) {
-      return res.status(400).json({ error: 'Missing or invalid studentId' });
+    // 1) Convertește la număr
+    const student_id = Number(req.body.student_id);
+    // 2) Dacă e valid, suprascrie în req.body
+    if (Number.isNaN(student_id)) {
+      return res.status(400).json({ error: 'Missing or invalid student_id' });
+    }
+    req.body.student_id = student_id;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
 
     const result = await svc.uploadPhoto(req);

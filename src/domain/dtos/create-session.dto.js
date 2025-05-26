@@ -1,11 +1,11 @@
 module.exports = {
   type: 'object',
   properties: {
-    studentId:   { type: 'integer' },
-    sessionDate: { type: 'string', format: 'date' },
-    notes:        { type: 'string' },
-    sessionType: { type: 'string' }
+    student_id:   { type: 'integer' },
+    session_date: { type: 'string', format: 'date' },
+    notes:         { type: 'string' },
+    session_type: { type: 'string' }
   },
-  required: ['studentId'],
+  required: ['student_id'],
   additionalProperties: false
 };

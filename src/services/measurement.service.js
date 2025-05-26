@@ -7,8 +7,8 @@ module.exports = {
     return await repo.create(m);
   },
 
-  async getMeasurementsByStudent(studentId) {
-    return await repo.findByStudent(Number(studentId));
+  async getMeasurementsByStudent(student_id) {
+    return await repo.findByStudent(Number(student_id));
   },
 
   async updateMeasurement(id, data) {

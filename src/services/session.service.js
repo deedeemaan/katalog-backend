@@ -7,8 +7,8 @@ module.exports = {
     return await repo.create(s);
   },
 
-  async getSessionsByStudent(studentId) {
-    return await repo.findByStudent(Number(studentId));
+  async getSessionsByStudent(student_id) {
+    return await repo.findByStudent(Number(student_id));
   },
 
   async updateSession(id, data) {

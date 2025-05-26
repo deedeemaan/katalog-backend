@@ -1,17 +1,17 @@
 class Session {
   constructor({
     id = null,
-    studentId,
-    sessionDate = new Date().toISOString().split('T')[0],
+    student_id,
+    session_date = new Date().toISOString().split('T')[0],
     notes = '',
-    sessionType = 'evaluare'
+    session_type = 'evaluare'
   }) {
-    if (typeof studentId !== 'number') throw new Error('studentId must be a number');
+    if (typeof student_id !== 'number') throw new Error('student_id must be a number');
     this.id = id;
-    this.studentId = studentId;
-    this.sessionDate = sessionDate;
+    this.student_id = student_id;
+    this.session_date = session_date;
     this.notes = notes;
-    this.sessionType = sessionType;
+    this.session_type = session_type;
   }
 }
 

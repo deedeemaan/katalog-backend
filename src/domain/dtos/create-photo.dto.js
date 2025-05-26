@@ -1,9 +1,9 @@
 module.exports = {
   type: 'object',
   properties: {
-    studentId: { type: 'integer' },
+    student_id: { type: 'integer' },
     uri:        { type: 'string', format: 'uri' }
   },
-  required: ['studentId','uri'],
+  required: ['student_id','uri'],
   additionalProperties: false
 };

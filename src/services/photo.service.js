@@ -9,8 +9,8 @@ module.exports = {
     return await repo.create(p);
   },
 
-  async getPhotosByStudent(studentId) {
-    return await repo.findByStudent(Number(studentId));
+  async getPhotosByStudent(student_id) {
+    return await repo.findByStudent(Number(student_id));
   },
 
   async deletePhoto(id) {
@@ -20,15 +20,15 @@ module.exports = {
 
   async uploadPhoto(req) {
     const file = req.file;
-    const studentId = Number(req.body.studentId); // Convertim la număr
+    const student_id = Number(req.body.student_id); 
     const filename = file.filename;
     const fullUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
 
-    if (isNaN(studentId)) {
-      throw new Error('Invalid studentId: must be a number');
+    if (isNaN(student_id)) {
+      throw new Error('Invalid student_id: must be a number');
     }
 
-    const p = new Photo({ studentId, uri: fullUrl });
+    const p = new Photo({ student_id, uri: fullUrl });
     const saved = await repo.create(p);
     return { ...saved, uri: fullUrl }; // Returnăm URL-ul complet pentru frontend
   }
