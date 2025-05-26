@@ -17,9 +17,9 @@ module.exports = {
 
     const postureData = {
       photo_id,
-      shoulder_tilt: angles.shoulderTilt ?? 0,
-      hip_tilt: angles.hipTilt ?? 0,
-      spine_tilt: angles.spineTilt ?? 0,
+      shoulder_tilt: angles.shoulderTilt,
+      hip_tilt: angles.hipTilt,
+      spine_tilt: angles.spineTilt,
       overlay_uri: null // Inițial null, va fi actualizat ulterior
     };
 

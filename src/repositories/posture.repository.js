@@ -36,15 +36,19 @@ module.exports = {
     return rows;
   },
 
-  async update(id, data) {
+  async update(photo_id, data) {
     const { overlay_uri } = data;
+    console.log('[REPO] Updating overlay_uri for photo_id:', photo_id);
+
     const { rows } = await pool.query(
       `UPDATE postures
-          SET overlay_uri = $1
-        WHERE id = $2
-    RETURNING id, photo_id, shoulder_tilt, hip_tilt, spine_tilt, created_at, overlay_uri`,
-      [overlay_uri, id]
+     SET overlay_uri = $1
+     WHERE photo_id = $2
+     RETURNING id, photo_id, shoulder_tilt, hip_tilt, spine_tilt, overlay_uri, created_at`,
+      [overlay_uri, photo_id]
     );
+
+    console.log('[REPO] Update result:', rows[0]);
     return rows[0];
   }
 };

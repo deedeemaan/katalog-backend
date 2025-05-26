@@ -22,20 +22,22 @@ router.post(
       const result = await svc.analyzeAndSave(photo_id, req.file.buffer);
 
       // 2) Generează overlay-ul
-      const overlayBuf = await ai.annotateImage(req.file.buffer); // Adaugă această linie
+      const overlayBuf = await ai.annotateImage(req.file.buffer);
       const filename = `overlay_${photo_id}_${Date.now()}.jpg`;
       const outPath = path.join(__dirname, '..', 'uploads', filename);
       await fs.writeFile(outPath, overlayBuf);
 
-      // 3) Actualizează rândul din postures cu URL-ul
+      // 3) Creează URL-ul pentru overlay
       const overlayUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
-      await require('../repositories/posture.repository').update(photo_id, {
+
+      // 4) Actualizează rândul din baza de date cu overlay_uri
+      const updatedPosture = await require('../repositories/posture.repository').update(photo_id, {
         overlay_uri: overlayUrl
       });
 
-      // 4) Răspunde
+      // 5) Răspunde cu datele salvate, inclusiv overlay_uri
       res.json({
-        posture: result.posture,
+        posture: updatedPosture, // Obiectul posture actualizat
         angles: result.angles,
         overlay_uri: overlayUrl
       });

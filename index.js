@@ -19,7 +19,7 @@ app.use('/photos', photoCtrl);            // POST /photos, POST /photos/upload, 
 app.use('/posture', postureCtrl);         // POST /posture/analyze etc.
 
 // serve static uploads
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('src/uploads'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
