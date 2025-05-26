@@ -18,7 +18,7 @@ app.use('/sessions', sessCtrl);           // POST /sessions, GET /sessions/:id e
 app.use('/photos', photoCtrl);            // POST /photos, POST /photos/upload, GET /photos/:id etc.
 app.use('/posture', postureCtrl);         // POST /posture/analyze etc.
 
-// serve static uploads
+// serve static src/uploads
 app.use('/uploads', express.static('src/uploads'));
 
 const PORT = process.env.PORT || 3000;
