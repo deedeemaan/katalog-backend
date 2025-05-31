@@ -27,17 +27,18 @@ router.post(
       const outPath = path.join(__dirname, '..', 'uploads', filename);
       await fs.writeFile(outPath, overlayBuf);
 
-      // 3) Creează URL-ul pentru overlay
-      const overlayUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+      // 3) Creează calea relativă pentru overlay
+      const relativePath = `/uploads/${filename}`;
 
-      // 4) Actualizează rândul din baza de date cu overlay_uri
+      // 4) Actualizează rândul din baza de date cu calea relativă
       const updatedPosture = await require('../repositories/posture.repository').update(photo_id, {
-        overlay_uri: overlayUrl
+        overlay_uri: relativePath
       });
 
-      // 5) Răspunde cu datele salvate, inclusiv overlay_uri
+      // 5) Răspunde cu URL-ul complet generat dinamic
+      const overlayUrl = `${req.protocol}://${req.get('host')}${relativePath}`;
       res.json({
-        posture: updatedPosture, // Obiectul posture actualizat
+        posture: updatedPosture,
         angles: result.angles,
         overlay_uri: overlayUrl
       });

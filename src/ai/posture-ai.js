@@ -2,7 +2,7 @@ const tf = require('@tensorflow/tfjs');
 require('@tensorflow/tfjs-backend-cpu');
 const poseDetection = require('@tensorflow-models/pose-detection');
 const { createCanvas, loadImage } = require('canvas');
-const { angleWithHorizontal, angleWithVertical } = require('../ai/helpers');
+const { angleWithHorizontal, angleWithVertical, calculateBackAngles, calculateLateralAngles, calculateFrontAngles, determinePosition } = require('../ai/helpers');
 
 let detector;
 async function getDetector() {
@@ -27,30 +27,31 @@ async function analyzePosture(buffer) {
   const detector = await getDetector();
   const poses = await detector.estimatePoses(canvas);
 
-  if (!poses.length || poses[0].keypoints.every(kp => kp.score < 0.3)) {
+  if (!poses.length || poses[0].keypoints.every(kp => kp.score < 0.5)) {
     throw new Error('No valid poses detected');
   }
 
   const keypoints = poses[0].keypoints;
   console.log('[AI] Keypoints detected:', keypoints);
 
-  const leftShoulder = keypoints.find(kp => kp.name === 'left_shoulder');
-  const rightShoulder = keypoints.find(kp => kp.name === 'right_shoulder');
-  const leftHip = keypoints.find(kp => kp.name === 'left_hip');
-  const rightHip = keypoints.find(kp => kp.name === 'right_hip');
+  const position = determinePosition(keypoints);
+  console.log('[AI] Detected position:', position);
 
-  if (!leftShoulder || !rightShoulder || !leftHip || !rightHip) {
-    throw new Error('Missing keypoints for posture analysis');
+  if (position === 'unknown') {
+    throw new Error('Unable to determine body position');
   }
 
-  const shoulderTilt = angleWithHorizontal(leftShoulder, rightShoulder);
-  const hipTilt = angleWithHorizontal(leftHip, rightHip);
-  const spineTilt = angleWithVertical(leftShoulder, leftHip);
+  let angles;
+  if (position === 'side') {
+    angles = calculateLateralAngles(keypoints);
+  } else if (position === 'back') {
+    angles = calculateBackAngles(keypoints);
+  } else if (position === 'front') {
+    angles = calculateFrontAngles(keypoints);
+  }
 
-  const angles = { shoulderTilt, hipTilt, spineTilt };
   console.log('[AI] Angles calculated:', angles);
-
-  return { angles, message: 'Success' };
+  return { angles, position, message: 'Success' };
 }
 
 /**
@@ -65,10 +66,10 @@ async function annotateImage(buffer) {
 
   const imgTensor = tf.browser.fromPixels(canvas);
   const det = await getDetector();
-  const poses = await det.estimatePoses(imgTensor, { scoreThreshold: 0.3 });
+  const poses = await det.estimatePoses(imgTensor, { scoreThreshold: 0.5 });
   imgTensor.dispose();
 
-  if (!poses.length || poses[0].keypoints.every(kp => kp.score < 0.3)) {
+  if (!poses.length || poses[0].keypoints.every(kp => kp.score < 0.5)) {
     throw new Error('Incomplete keypoints for annotation');
   }
 
@@ -104,15 +105,6 @@ async function annotateImage(buffer) {
   ctx.strokeStyle = 'red'; ctx.beginPath(); ctx.moveTo(ls.x, ls.y); ctx.lineTo(rs.x, rs.y); ctx.stroke();
   ctx.strokeStyle = 'blue'; ctx.beginPath(); ctx.moveTo(lh.x, lh.y); ctx.lineTo(rh.x, rh.y); ctx.stroke();
   ctx.strokeStyle = 'lime'; ctx.beginPath(); ctx.moveTo(midShoulder.x, midShoulder.y); ctx.lineTo(midHip.x, midHip.y); ctx.stroke();
-
-  // calcul unghi coloana (cel mai mic ≤ 90°)
-  let raw_spine = angleWithVertical(midShoulder, midHip);
-  const spine_tilt = raw_spine > 90 ? 180 - raw_spine : raw_spine;
-
-  // afișează unghi pe imagine
-  ctx.font = '24px Sans';
-  ctx.fillStyle = 'yellow';
-  ctx.fillText(`Spine tilt: ${spine_tilt.toFixed(1)}°`, midShoulder.x + 10, midShoulder.y - 10);
 
   return canvas.toBuffer('image/jpeg');
 }

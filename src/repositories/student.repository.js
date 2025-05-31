@@ -32,6 +32,14 @@ module.exports = {
   },
 
   async delete(id) {
+    // Șterge înregistrările asociate din measurements
+    await pool.query('DELETE FROM measurements WHERE student_id=$1', [id]);
+
+    // Șterge înregistrările asociate din alte tabele (dacă este cazul)
+    await pool.query('DELETE FROM sessions WHERE student_id=$1', [id]);
+    await pool.query('DELETE FROM photos WHERE student_id=$1', [id]);
+
+    // Șterge studentul
     await pool.query('DELETE FROM students WHERE id=$1', [id]);
   }
 };
