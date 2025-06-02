@@ -21,6 +21,8 @@ router.post(
       // 1) Analizează și salvează în DB (angles + creație entitate Posture)
       const result = await svc.analyzeAndSave(photo_id, req.file.buffer);
 
+      console.log('[CTRL] Analysis result (angles):', result.angles);
+
       // 2) Generează overlay-ul
       const overlayBuf = await ai.annotateImage(req.file.buffer);
       const filename = `overlay_${photo_id}_${Date.now()}.jpg`;
