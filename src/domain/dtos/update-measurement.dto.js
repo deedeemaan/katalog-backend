@@ -1,6 +1,7 @@
 module.exports = {
   type: 'object',
   properties: {
+    student_id:             { type: 'integer', minimum: 1 },
     height:                  { type: 'integer', minimum: 0 },
     weight:                  { type: 'integer', minimum: 0 },
     head_circumference:      { type: 'integer', minimum: 0 },

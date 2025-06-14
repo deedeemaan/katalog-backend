@@ -1,14 +1,14 @@
 const pool = require('../db/dbindex');
 
-module.exports = {
+class PhotoRepository {
   async create(p) {
-    const { student_id, uri } = p; 
+    const { student_id, uri } = p;
     const { rows } = await pool.query(
       `INSERT INTO photos (student_id, uri) VALUES ($1, $2) RETURNING *`,
       [student_id, uri]
     );
     return rows[0];
-  },
+  }
 
   async findByStudent(student_id) {
     const { rows } = await pool.query(
@@ -16,11 +16,11 @@ module.exports = {
       [student_id]
     );
     return rows;
-  },
+  }
 
   async delete(id) {
     await pool.query(`DELETE FROM photos WHERE id=$1`, [id]);
-  },
+  }
 
   async findById(id) {
     const { rows } = await pool.query(
@@ -29,4 +29,6 @@ module.exports = {
     );
     return rows[0] || null;
   }
-};
+}
+
+module.exports = new PhotoRepository();

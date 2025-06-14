@@ -1,9 +1,8 @@
 const pool = require('../db/dbindex');
 
-module.exports = {
+class MeasurementRepository {
   async create(m) {
     console.log('[MEASUREMENT REPO] primit:', m);
-    // Direct use of snake_case fields from payload
     const { student_id, height, weight, head_circumference, chest_circumference, abdominal_circumference, physical_disability } = m;
 
     const { rows } = await pool.query(
@@ -23,7 +22,7 @@ module.exports = {
     );
     console.log('[MEASUREMENT REPO] rezultat:', rows[0]);
     return rows[0];
-  },
+  }
 
   async findByStudent(student_id) {
     const { rows } = await pool.query(
@@ -31,10 +30,9 @@ module.exports = {
       [student_id]
     );
     return rows;
-  },
+  }
 
   async update(id, m) {
-    // Direct use of snake_case fields from payload
     const { height, weight, head_circumference, chest_circumference, abdominal_circumference, physical_disability } = m;
 
     const { rows } = await pool.query(
@@ -56,9 +54,11 @@ module.exports = {
     );
     console.log('[MEASUREMENT REPO] rezultat:', rows[0]);
     return rows[0];
-  },
+  }
 
   async delete(id) {
     await pool.query('DELETE FROM measurements WHERE id=$1', [id]);
   }
-};
+}
+
+module.exports = new MeasurementRepository();

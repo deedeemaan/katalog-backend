@@ -1,38 +1,78 @@
 const express = require('express');
-const router = express.Router();
-const svc = require('../services/session.service');
-const { validateCreateSession, validateUpdateSession } = require('../domain/validators/session.validator');
+const sessionSvc = require('../services/session.service'); 
+const sessionValidator = require('../domain/validators/session.validator'); 
 
-// POST /sessions
-router.post('/', validateCreateSession, async (req, res, next) => {
-  try {
-    const created = await svc.createSession(req.body);
-    res.status(201).json(created);
-  } catch (e) { next(e); }
-});
+class SessionController {
+  constructor() {
+    this.router = express.Router();
+    this.initializeRoutes();
+  }
 
-// GET /sessions/student/:id
-router.get('/student/:id', async (req, res, next) => {
-  try {
-    const rows = await svc.getSessionsByStudent(req.params.id);
-    res.json(rows);
-  } catch (e) { next(e); }
-});
+  initializeRoutes() {
+    this.router.post(
+      '/',
+      sessionValidator.validateCreateSession.bind(sessionValidator), 
+      this.createSession.bind(this)
+    );
+    this.router.get('/student/:id', this.getSessionsByStudent.bind(this));
+    this.router.put(
+      '/:id',
+      sessionValidator.validateUpdateSession.bind(sessionValidator), 
+      this.updateSession.bind(this)
+    );
+    this.router.delete('/:id', this.deleteSession.bind(this));
+  }
 
-// PUT /sessions/:id
-router.put('/:id', validateUpdateSession, async (req, res, next) => {
-  try {
-    const updated = await svc.updateSession(req.params.id, req.body);
-    res.json(updated);
-  } catch (e) { next(e); }
-});
+  async createSession(req, res, next) {
+    try {
+      const created = await sessionSvc.createSession(req.body); 
+      res.status(201).json(created);
+    } catch (e) {
+      next(e);
+    }
+  }
 
-// DELETE /sessions/:id
-router.delete('/:id', async (req, res, next) => {
-  try {
-    await svc.deleteSession(req.params.id);
-    res.json({ message: 'Sesiune ștearsă!' });
-  } catch (e) { next(e); }
-});
+  async getSessionsByStudent(req, res, next) {
+    try {
+      const rows = await sessionSvc.getSessionsByStudent(req.params.id); 
+      res.json(rows);
+    } catch (e) {
+      next(e);
+    }
+  }
 
-module.exports = router;
+  async updateSession(req, res, next) {
+    const student_id = Number(req.body.student_id);
+    if (isNaN(student_id)) {
+      throw new Error('Invalid student_id: must be a number');
+    }
+    console.log('Controller req.body:', req.body);
+    if (!req.body.session_date || !req.body.session_type) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required fields: session_date or session_type' });
+    }
+    const parsedDate = new Date(req.body.session_date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid session_date: must be a valid date' });
+    }
+    req.body.session_date = parsedDate.toISOString().split('T')[0]; 
+    try {
+      const updated = await sessionSvc.updateSession(req.params.id, req.body);
+      res.json(updated);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteSession(req, res, next) {
+    try {
+      await sessionSvc.deleteSession(req.params.id); 
+      res.json({ message: 'Sesiune ștearsă!' });
+    } catch (e) {
+      next(e);
+    }
+  }
+}
+
+module.exports = new SessionController().router;

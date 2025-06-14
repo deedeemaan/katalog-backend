@@ -1,11 +1,18 @@
 const Ajv = require('ajv');
 const createSchema = require('../dtos/create-photo.dto');
-const ajv = new Ajv({formats:{uri: true}});
-const validateCreate = ajv.compile(createSchema);
 
-exports.validateCreatePhoto = (req, res, next) => {
-  if (!validateCreate(req.body)) {
-    return res.status(400).json({ errors: validateCreate.errors });
+class PhotoValidator {
+  constructor() {
+    const ajv = new Ajv({ formats: { uri: true } });
+    this.validateCreate = ajv.compile(createSchema);
   }
-  next();
-};
+
+  validateCreatePhoto(req, res, next) {
+    if (!this.validateCreate(req.body)) {
+      return res.status(400).json({ errors: this.validateCreate.errors });
+    }
+    next();
+  }
+}
+
+module.exports = new PhotoValidator();
