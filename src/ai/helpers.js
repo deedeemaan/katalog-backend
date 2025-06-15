@@ -2,6 +2,12 @@ const poseDetection = require('@tensorflow-models/pose-detection');
 
 class PoseHelpers {
 
+  /**
+   * Calculează unghiul dintre linia definită de două puncte și orizontală.
+   * @param {Object} p1 - Primul punct (cu proprietăți x și y).
+   * @param {Object} p2 - Al doilea punct (cu proprietăți x și y).
+   * @returns {number} - Unghiul în grade (între 0 și 90).
+   */
   static angleWithHorizontal(p1, p2) {
     if (!p1 || !p2) {
       throw new Error('Invalid points for angle calculation');
@@ -12,6 +18,12 @@ class PoseHelpers {
     return raw <= 90 ? raw : (180 - raw);
   }
 
+  /**
+   * Calculează unghiul dintre linia definită de două puncte și verticala.
+   * @param {Object} a - Primul punct (cu proprietăți x și y).
+   * @param {Object} b - Al doilea punct (cu proprietăți x și y).
+   * @returns {number} - Unghiul în grade (între 0 și 90).
+   */
   static angleWithVertical(a, b) {
     if (!a || !b) {
       throw new Error('Invalid points for angle calculation');
@@ -22,6 +34,13 @@ class PoseHelpers {
     return raw <= 90 ? raw : (180 - raw);
   }
 
+  /**
+   * Calculează unghiul format la o articulație definită de trei puncte.
+   * @param {Object} A - Primul punct (cu proprietăți x și y).
+   * @param {Object} B - Punctul central (articulația).
+   * @param {Object} C - Al treilea punct (cu proprietăți x și y).
+   * @returns {number|null} - Unghiul în grade (între 0 și 180) sau null dacă magnitudinea este zero.
+   */
   static angleAtJoint(A, B, C) {
     if (!A || !B || !C) {
       throw new Error('Invalid points for angle calculation');
@@ -40,6 +59,11 @@ class PoseHelpers {
     return angleRad * (180 / Math.PI);
   }
 
+  /**
+   * Determină poziția generală a corpului (front, back, side, unknown) pe baza punctelor cheie.
+   * @param {Array} keypoints - Lista punctelor cheie detectate.
+   * @returns {string} - Poziția detectată: 'front', 'back', 'side', sau 'unknown'.
+   */
   static determinePosition(keypoints) {
     // 1. Extrage punctele cu scor > 0.5
     const ls = keypoints.find(kp => kp.name === 'left_shoulder' && kp.score > 0.5);
@@ -77,7 +101,11 @@ class PoseHelpers {
     return 'unknown';
   }
 
-
+  /**
+   * Calculează unghiurile pentru poziția laterală (side).
+   * @param {Array} keypoints - Lista punctelor cheie detectate.
+   * @returns {Object} - Unghiurile calculate: shoulderTilt, hipTilt, spineTilt.
+   */
   static calculateLateralAngles(keypoints) {
     const leftShoulder = keypoints.find(kp => kp.name === 'left_shoulder');
     const leftHip = keypoints.find(kp => kp.name === 'left_hip');
@@ -100,6 +128,11 @@ class PoseHelpers {
     };
   }
 
+  /**
+   * Calculează unghiurile pentru pozițiile frontale și dorsale (front/back).
+   * @param {Array} keypoints - Lista punctelor cheie detectate.
+   * @returns {Object} - Unghiurile calculate: shoulderTilt, hipTilt, spineTilt.
+   */
   static calculateFrontAndBackAngles(keypoints) {
     const leftShoulder = keypoints.find(kp => kp.name === 'left_shoulder');
     const rightShoulder = keypoints.find(kp => kp.name === 'right_shoulder');

@@ -1,6 +1,11 @@
 const pool = require('../db/dbindex');
 
 class MeasurementRepository {
+  /**
+   * Creează o nouă măsurătoare în baza de date.
+   * @param {Object} m - Obiectul măsurătorii (conține student_id, height, weight, etc.).
+   * @returns {Object} - Măsurătoarea creată.
+   */
   async create(m) {
     console.log('[MEASUREMENT REPO] primit:', m);
     const { student_id, height, weight, head_circumference, chest_circumference, abdominal_circumference, physical_disability } = m;
@@ -24,6 +29,11 @@ class MeasurementRepository {
     return rows[0];
   }
 
+  /**
+   * Obține toate măsurătorile asociate unui student.
+   * @param {number} student_id - ID-ul studentului.
+   * @returns {Array} - Lista măsurătorilor asociate studentului.
+   */
   async findByStudent(student_id) {
     const { rows } = await pool.query(
       'SELECT * FROM measurements WHERE student_id=$1 ORDER BY created_at DESC',
@@ -32,6 +42,12 @@ class MeasurementRepository {
     return rows;
   }
 
+  /**
+   * Actualizează o măsurătoare existentă în baza de date.
+   * @param {number} id - ID-ul măsurătorii.
+   * @param {Object} m - Obiectul măsurătorii actualizate (conține height, weight, etc.).
+   * @returns {Object} - Măsurătoarea actualizată.
+   */
   async update(id, m) {
     const { height, weight, head_circumference, chest_circumference, abdominal_circumference, physical_disability } = m;
 
@@ -56,6 +72,10 @@ class MeasurementRepository {
     return rows[0];
   }
 
+  /**
+   * Șterge o măsurătoare existentă din baza de date.
+   * @param {number} id - ID-ul măsurătorii.
+   */
   async delete(id) {
     await pool.query('DELETE FROM measurements WHERE id=$1', [id]);
   }

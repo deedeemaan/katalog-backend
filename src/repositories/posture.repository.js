@@ -1,6 +1,11 @@
 const pool = require('../db/dbindex');
 
 class PostureRepository {
+  /**
+   * Creează o nouă postură în baza de date.
+   * @param {Object} data - Obiectul posturii (conține photo_id, shoulder_tilt, hip_tilt, spine_tilt, overlay_uri).
+   * @returns {Object} - Postura creată.
+   */
   async create(data) {
     try {
       const { photo_id, shoulder_tilt, hip_tilt, spine_tilt, overlay_uri } = data;
@@ -20,6 +25,11 @@ class PostureRepository {
     }
   }
 
+  /**
+   * Obține toate posturile asociate unei fotografii.
+   * @param {number} photo_id - ID-ul fotografiei.
+   * @returns {Array} - Lista posturilor asociate fotografiei.
+   */
   async findByPhoto(photo_id) {
     const { rows } = await pool.query(
       `SELECT id, photo_id, shoulder_tilt, hip_tilt, spine_tilt, overlay_uri, created_at
@@ -31,6 +41,12 @@ class PostureRepository {
     return rows;
   }
 
+  /**
+   * Actualizează o postură existentă în baza de date.
+   * @param {number} photo_id - ID-ul fotografiei asociate posturii.
+   * @param {Object} data - Obiectul posturii actualizate (conține overlay_uri).
+   * @returns {Object} - Postura actualizată.
+   */
   async update(photo_id, data) {
     const { overlay_uri } = data;
 
@@ -41,7 +57,7 @@ class PostureRepository {
        RETURNING id, photo_id, shoulder_tilt, hip_tilt, spine_tilt, overlay_uri, created_at`,
       [overlay_uri, photo_id]
     );
-    console.log('Repository session_date:', data.session_date);
+    console.log('Repository overlay_uri:', overlay_uri);
     return rows[0];
   }
 }

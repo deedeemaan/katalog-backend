@@ -10,18 +10,28 @@ class PhotoController {
     this.initializeRoutes();
   }
 
+  /**
+   * Inițializează rutele pentru operațiile CRUD ale fotografiilor.
+   * Include validarea datelor și configurarea pentru upload-ul fișierelor.
+   */
   initializeRoutes() {
     this.router.use(express.json());
     this.router.use(express.urlencoded({ extended: true }));
 
+    // Creează o fotografie nouă
     this.router.post(
       '/',
       photoValidator.validateCreatePhoto.bind(photoValidator), 
       this.createPhoto.bind(this)
     );
+
+    // Obține fotografiile asociate unui student
     this.router.get('/student/:id', this.getPhotosByStudent.bind(this));
+
+    // Șterge o fotografie
     this.router.delete('/:id', this.deletePhoto.bind(this));
 
+    // Configurare pentru upload-ul fișierelor
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {
         const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -35,9 +45,16 @@ class PhotoController {
     });
     const upload = multer({ storage });
 
+    // Upload-ul unei fotografii
     this.router.post('/upload', upload.single('photo'), this.uploadPhoto.bind(this));
   }
 
+  /**
+   * Creează o fotografie nouă.
+   * @param {Object} req - Obiectul cererii HTTP (conține datele fotografiei).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async createPhoto(req, res, next) {
     try {
       const created = await photoSvc.createPhoto(req.body); 
@@ -47,6 +64,12 @@ class PhotoController {
     }
   }
 
+  /**
+   * Obține toate fotografiile asociate unui student.
+   * @param {Object} req - Obiectul cererii HTTP (conține ID-ul studentului).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async getPhotosByStudent(req, res, next) {
     try {
       const rows = await photoSvc.getPhotosByStudent(req.params.id); 
@@ -56,6 +79,12 @@ class PhotoController {
     }
   }
 
+  /**
+   * Șterge o fotografie existentă.
+   * @param {Object} req - Obiectul cererii HTTP (conține ID-ul fotografiei).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async deletePhoto(req, res, next) {
     try {
       await photoSvc.deletePhoto(req.params.id); 
@@ -65,6 +94,13 @@ class PhotoController {
     }
   }
 
+  /**
+   * Upload-ul unei fotografii.
+   * Validează `student_id` și verifică dacă fișierul a fost încărcat.
+   * @param {Object} req - Obiectul cererii HTTP (conține fișierul și datele asociate).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async uploadPhoto(req, res, next) {
     try {
       const student_id = Number(req.body.student_id);

@@ -8,21 +8,38 @@ class MeasurementController {
     this.initializeRoutes();
   }
 
+  /**
+   * Inițializează rutele pentru operațiile CRUD ale măsurătorilor.
+   * Rutele includ validarea datelor înainte de procesare.
+   */
   initializeRoutes() {
+    // Creează o măsurătoare nouă
     this.router.post(
       '/',
       measurementValidator.validateCreateMeasurement.bind(measurementValidator), 
       this.createMeasurement.bind(this)
     );
+
+    // Obține măsurătorile unui student
     this.router.get('/student/:id', this.getMeasurementsByStudent.bind(this));
+
+    // Actualizează o măsurătoare existentă
     this.router.put(
       '/:id',
       measurementValidator.validateUpdateMeasurement.bind(measurementValidator), 
       this.updateMeasurement.bind(this)
     );
+
+    // Șterge o măsurătoare
     this.router.delete('/:id', this.deleteMeasurement.bind(this));
   }
 
+  /**
+   * Creează o măsurătoare nouă.
+   * @param {Object} req - Obiectul cererii HTTP (conține datele măsurătorii).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async createMeasurement(req, res, next) {
     try {
       const created = await measurementSvc.createMeasurement(req.body); 
@@ -32,6 +49,12 @@ class MeasurementController {
     }
   }
 
+  /**
+   * Obține toate măsurătorile asociate unui student.
+   * @param {Object} req - Obiectul cererii HTTP (conține ID-ul studentului).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async getMeasurementsByStudent(req, res, next) {
     try {
       const rows = await measurementSvc.getMeasurementsByStudent(req.params.id); 
@@ -41,6 +64,13 @@ class MeasurementController {
     }
   }
 
+  /**
+   * Actualizează o măsurătoare existentă.
+   * Validează `student_id` înainte de procesare.
+   * @param {Object} req - Obiectul cererii HTTP (conține datele actualizate).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async updateMeasurement(req, res, next) {
     const student_id = Number(req.body.student_id);
     if (isNaN(student_id)) {
@@ -54,6 +84,12 @@ class MeasurementController {
     }
   }
 
+  /**
+   * Șterge o măsurătoare existentă.
+   * @param {Object} req - Obiectul cererii HTTP (conține ID-ul măsurătorii).
+   * @param {Object} res - Obiectul răspunsului HTTP.
+   * @param {Function} next - Funcția middleware pentru gestionarea erorilor.
+   */
   async deleteMeasurement(req, res, next) {
     try {
       await measurementSvc.deleteMeasurement(req.params.id); // Folosește instanța service
