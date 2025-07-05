@@ -1,4 +1,3 @@
-# katalog-backend
 # Katalog Backend
 
 This repository contains the backend implementation for **Katalog**, a mobile application developed as part of my bachelor's thesis. Katalog assists physical therapists in special education settings by providing tools to capture, analyze, and manage student posture data and anthropometric measurements.
