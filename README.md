@@ -62,5 +62,4 @@ The backend API server will start running at `http://localhost:5000`.
 
 ## Frontend
 
-This backend supports the [Katalog Frontend](https://github.com/yourusername/katalog-frontend) mobile application.
-
+This backend supports the [Katalog Frontend](https://github.com/deedeemaan/katalog) mobile application.
