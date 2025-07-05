@@ -1,1 +1,4 @@
 node_modules
+src/uploads/
+test_images/
+test_result/
